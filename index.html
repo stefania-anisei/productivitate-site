@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productivitatea Medie și Marginală</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        table, input, button {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .result {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analiza Productivității</h1>
+    <h2>Introduceți valorile problemei</h2>
+    <form id="inputForm">
+        <label for="initialEmployees">Număr angajați inițial:</label>
+        <input type="number" id="initialEmployees" value="50"><br><br>
+        <label for="newEmployees">Număr angajați nou:</label>
+        <input type="number" id="newEmployees" value="54"><br><br>
+        <label for="initialProduction">Producție inițială:</label>
+        <input type="number" id="initialProduction" value="1000"><br><br>
+        <label for="newProduction">Producție nouă:</label>
+        <input type="number" id="newProduction" value="1200"><br><br>
+        <button type="button" onclick="calculateAndDisplay()">Calculează</button>
+    </form>
+
+    <h2>Rezultatele Calculului</h2>
+    <table id="resultsTable">
+        <tr>
+            <th>Calcul</th>
+            <th>Rezultat</th>
+        </tr>
+        <tr>
+            <td>Productivitatea medie inițială</td>
+            <td id="initialAvg" class="result">-</td>
+        </tr>
+        <tr>
+            <td>Productivitatea medie nouă</td>
+            <td id="newAvg" class="result">-</td>
+        </tr>
+        <tr>
+            <td>Productivitatea marginală</td>
+            <td id="marginalProd" class="result">-</td>
+        </tr>
+    </table>
+
+    <h2>Graficul Productivității</h2>
+    <canvas id="productivityChart" width="400" height="200"></canvas>
+
+    <!-- Script pentru includerea Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chart;
+
+        function calculateAndDisplay() {
+            // Preluarea valorilor introduse de utilizator
+            const numAngajatiInitial = parseInt(document.getElementById('initialEmployees').value);
+            const numAngajatiNou = parseInt(document.getElementById('newEmployees').value);
+            const productieInitiala = parseInt(document.getElementById('initialProduction').value);
+            const productieNoua = parseInt(document.getElementById('newProduction').value);
+
+            // Calcularea productivității
+            const productivitateMedieInitiala = productieInitiala / numAngajatiInitial;
+            const productivitateMedieNoua = productieNoua / numAngajatiNou;
+            const productivitateMarginala = (productieNoua - productieInitiala) / (numAngajatiNou - numAngajatiInitial);
+
+            // Afișarea rezultatelor în tabel
+            document.getElementById('initialAvg').textContent = productivitateMedieInitiala.toFixed(2) + " unități/angajat";
+            document.getElementById('newAvg').textContent = productivitateMedieNoua.toFixed(2) + " unități/angajat";
+            document.getElementById('marginalProd').textContent = productivitateMarginala.toFixed(2) + " unități/angajat";
+
+            // Calcularea valorii maxime pentru axa Y
+            const maxY = Math.max(productivitateMedieInitiala, productivitateMedieNoua, productivitateMarginala) + 10;
+
+            // Configurarea datelor pentru grafic
+            const data = {
+                labels: [`Număr de angajați inițial (${numAngajatiInitial})`, `Număr de angajați nou (${numAngajatiNou})`],
+                datasets: [
+                    {
+                        label: 'Productivitatea medie',
+                        data: [productivitateMedieInitiala, productivitateMedieNoua],
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Productivitatea marginală',
+                        data: [productivitateMedieInitiala, productivitateMarginala],
+                        borderColor: 'red',
+                        backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            };
+
+            // Configurarea graficului
+            const config = {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Productivitatea Medie și Marginală'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Număr de salariați'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Productivitate (unități/angajat)'
+                            },
+                            min: 0,
+                            max: maxY
+                        }
+                    }
+                }
+            };
+
+            // Crearea sau actualizarea graficului
+            if (chart) {
+                chart.destroy();
+            }
+            const ctx = document.getElementById('productivityChart').getContext('2d');
+            chart = new Chart(ctx, config);
+        }
+    </script>
+</body>
+</html>
